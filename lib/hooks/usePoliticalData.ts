@@ -29,9 +29,32 @@ export interface ActiveCountryState {
   /** Região continental do país */
   region: string;
   /** Período político ativo no ano consultado (null se inexistente) */
-  activePeriod: PoliticalPeriod | null;
+  activePeriod: any;
   /** Flag booleano indicando se o país atende a todos os filtros da Zustand Store */
   matchesFilters: boolean;
+}
+
+/**
+ * Traduz o período político conforme a locale ativa.
+ */
+function translatePeriod(period: any, locale: "en" | "pt"): any {
+  if (!period) return null;
+  return {
+    ...period,
+    description: period.description?.[locale] || period.description || "",
+    key_events: period.key_events?.[locale] || period.key_events || undefined,
+  };
+}
+
+/**
+ * Traduz os metadados do país e seus períodos políticos conforme a locale ativa.
+ */
+function translateCountry(country: any, locale: "en" | "pt"): any {
+  if (!country) return null;
+  return {
+    ...country,
+    periods: country.periods.map((p: any) => translatePeriod(p, locale)),
+  };
 }
 
 /**
@@ -39,12 +62,13 @@ export interface ActiveCountryState {
  * 
  * @param {string} [countryCode] - Se fornecido, retorna dados apenas para o país informado.
  * @param {number} [year] - Se fornecido, avalia o estado dos países no ano informado em vez de usar o ano global da store.
- * @returns {{ countries: ActiveCountryState[], country: CountryData | null, year: number }} Estado de dados processados.
+ * @returns {{ countries: ActiveCountryState[], country: any, year: number }} Estado de dados processados.
  */
 export function usePoliticalData(countryCode?: string, year?: number) {
-  // Lê o ano selecionado e os filtros diretamente do estado global do Zustand
+  // Lê o ano selecionado, filtros e locale diretamente do estado global do Zustand
   const globalYear = useAppStore((state) => state.selectedYear);
   const filters = useAppStore((state) => state.filters);
+  const locale = useAppStore((state) => state.locale);
 
   // O ano alvo da pesquisa será o ano passado por parâmetro ou o ano global ativo na linha do tempo
   const targetYear = year !== undefined ? year : globalYear;
@@ -64,7 +88,7 @@ export function usePoliticalData(countryCode?: string, year?: number) {
       const single = countries.find(
         (c) => c.code.toUpperCase() === countryCode.toUpperCase()
       );
-      return single ? [single] : [];
+      return single ? [translateCountry(single, locale)] : [];
     }
 
     // Processa a lista inteira computando o período ativo de cada nação
@@ -112,16 +136,16 @@ export function usePoliticalData(countryCode?: string, year?: number) {
         code: country.code,
         name: country.name,
         region: country.region,
-        activePeriod,
+        activePeriod: translatePeriod(activePeriod, locale),
         matchesFilters,
       };
     });
-  }, [countryCode, targetYear, filters.region, filters.regimeType, filters.spectrumRange]);
+  }, [countryCode, targetYear, filters.region, filters.regimeType, filters.spectrumRange, locale]);
 
   // Memoriza o objeto de país único se requisitado por código
   const singleCountry = useMemo(() => {
     if (countryCode && processedData.length > 0) {
-      return processedData[0] as unknown as CountryData;
+      return processedData[0];
     }
     return null;
   }, [countryCode, processedData]);

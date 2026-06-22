@@ -16,20 +16,33 @@
 
 import React, { useState } from "react";
 import * as Slider from "@radix-ui/react-slider";
+import { useTranslations } from "next-intl";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { ChevronLeft, ChevronRight, SlidersHorizontal, RotateCcw } from "lucide-react";
 
 // Lista de regiões geográficas suportadas na interface
 const REGIONS = ["All", "Americas", "Europe", "Asia", "Africa", "Middle East"];
 
+const getRegionKey = (region: string): string => {
+  switch (region) {
+    case "All": return "regions.all";
+    case "Americas": return "regions.americas";
+    case "Europe": return "regions.europe";
+    case "Asia": return "regions.asia";
+    case "Africa": return "regions.africa";
+    case "Middle East": return "regions.middleEast";
+    default: return "regions.all";
+  }
+};
+
 // Lista de regimes políticos mapeados e suas classes de cores utilitárias correspondentes
 const REGIMES = [
-  { value: "All", label: "Todos os Regimes" },
-  { value: "Democracy", label: "Democracia", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" },
-  { value: "Authoritarian", label: "Autoritarismo", color: "bg-red-500/20 text-red-400 border-red-500/30" },
-  { value: "Hybrid", label: "Híbrido", color: "bg-orange-500/20 text-orange-400 border-orange-500/30" },
-  { value: "Monarchy", label: "Monarquia", color: "bg-purple-500/20 text-purple-400 border-purple-500/30" },
-  { value: "Transitional", label: "Transição", color: "bg-zinc-500/20 text-zinc-400 border-zinc-500/30" },
+  { value: "All", labelKey: "regimeTypes.all" },
+  { value: "Democracy", labelKey: "regimeTypes.democracy", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" },
+  { value: "Authoritarian", labelKey: "regimeTypes.authoritarian", color: "bg-red-500/20 text-red-400 border-red-500/30" },
+  { value: "Hybrid", labelKey: "regimeTypes.hybrid", color: "bg-orange-500/20 text-orange-400 border-orange-500/30" },
+  { value: "Monarchy", labelKey: "regimeTypes.monarchy", color: "bg-purple-500/20 text-purple-400 border-purple-500/30" },
+  { value: "Transitional", labelKey: "regimeTypes.transitional", color: "bg-zinc-500/20 text-zinc-400 border-zinc-500/30" },
 ];
 
 /**
@@ -38,6 +51,7 @@ const REGIMES = [
  * @returns {React.JSX.Element} Elemento React representando a barra de filtros.
  */
 export default function FilterSidebar() {
+  const t = useTranslations("filters");
   // Estado local para controle do painel estar aberto (expandido) ou colapsado
   const [isOpen, setIsOpen] = useState(true);
 
@@ -64,15 +78,15 @@ export default function FilterSidebar() {
         <div className="p-5 border-b border-white/5 flex items-center justify-between">
           <div className="flex items-center gap-2 font-semibold text-gray-200">
             <SlidersHorizontal className="w-4 h-4 text-white" />
-            <span>Filtros do Atlas</span>
+            <span>{t("title")}</span>
           </div>
           <button 
             onClick={resetFilters}
             className="text-xs text-muted-foreground hover:text-white flex items-center gap-1 hover:bg-white/5 px-2.5 py-1.5 rounded-lg smooth-transition border border-transparent hover:border-white/10"
-            title="Resetar todos os filtros"
+            title={t("reset")}
           >
             <RotateCcw className="w-3 h-3" />
-            <span>Resetar</span>
+            <span>{t("reset")}</span>
           </button>
         </div>
 
@@ -81,10 +95,11 @@ export default function FilterSidebar() {
           
           {/* 1. Filtro de Região */}
           <div className="flex flex-col gap-2.5">
-            <label className="text-xs font-bold text-muted-foreground tracking-wider uppercase">Região Geográfica</label>
+            <label className="text-xs font-bold text-muted-foreground tracking-wider uppercase">{t("regions.label")}</label>
             <div className="grid grid-cols-2 gap-1.5">
               {REGIONS.map((region) => {
                 const active = filters.region === region;
+                const regionLabel = t(getRegionKey(region));
                 return (
                   <button
                     key={region}
@@ -95,7 +110,7 @@ export default function FilterSidebar() {
                         : "bg-white/2 border-white/5 text-muted-foreground hover:text-white hover:bg-white/5 hover:border-white/10"
                     }`}
                   >
-                    {region === "All" ? "Todas" : region}
+                    {region === "All" ? regionLabel.split(" ")[0] : regionLabel}
                   </button>
                 );
               })}
@@ -104,7 +119,7 @@ export default function FilterSidebar() {
 
           {/* 2. Filtro de Tipo de Regime */}
           <div className="flex flex-col gap-2.5">
-            <label className="text-xs font-bold text-muted-foreground tracking-wider uppercase">Tipo de Regime</label>
+            <label className="text-xs font-bold text-muted-foreground tracking-wider uppercase">{t("regimeTypes.label")}</label>
             <div className="flex flex-col gap-1.5">
               {REGIMES.map((regime) => {
                 const active = filters.regimeType === regime.value;
@@ -118,10 +133,10 @@ export default function FilterSidebar() {
                         : "bg-white/2 border-white/5 text-muted-foreground hover:text-white hover:bg-white/5 hover:border-white/10"
                     }`}
                   >
-                    <span>{regime.label}</span>
+                    <span>{t(regime.labelKey)}</span>
                     {regime.value !== "All" && (
                       <span className={`text-[9px] px-2 py-0.5 rounded-md border font-semibold ${regime.color}`}>
-                        {regime.value === "transitional" ? "transição" : regime.value}
+                        {t(`regimeTypes.${regime.value.toLowerCase()}`)}
                       </span>
                     )}
                   </button>
@@ -133,7 +148,7 @@ export default function FilterSidebar() {
           {/* 3. Slider de Espectro Político Duplo (Radix Slider) */}
           <div className="flex flex-col gap-3.5 border-t border-white/5 pt-5">
             <div className="flex justify-between items-center">
-              <label className="text-xs font-bold text-muted-foreground tracking-wider uppercase">Faixa do Espectro</label>
+              <label className="text-xs font-bold text-muted-foreground tracking-wider uppercase">{t("spectrumRange")}</label>
               <span className="text-xs font-semibold text-white px-2 py-0.5 bg-white/5 rounded border border-white/10">
                 {filters.spectrumRange[0]} a {filters.spectrumRange[1]}
               </span>
@@ -163,9 +178,9 @@ export default function FilterSidebar() {
             </Slider.Root>
 
             <div className="flex justify-between text-[9px] text-muted-foreground font-medium">
-              <span>-10 (Esquerda)</span>
-              <span>0 (Centro)</span>
-              <span>+10 (Direita)</span>
+              <span>-10 ({useAppStore.getState().locale === "pt" ? "Esquerda" : "Left"})</span>
+              <span>0 ({useAppStore.getState().locale === "pt" ? "Centro" : "Center"})</span>
+              <span>+10 ({useAppStore.getState().locale === "pt" ? "Direita" : "Right"})</span>
             </div>
           </div>
 

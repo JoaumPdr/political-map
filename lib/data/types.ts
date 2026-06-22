@@ -44,10 +44,16 @@ export interface PoliticalPeriod {
   spectrum: SpectrumValue;
   /** Classificação do regime de governança ativa */
   regime_type: RegimeType;
-  /** Resumo didático e fatual de 2 a 3 sentenças descrevendo o contexto do período */
-  description: string;
-  /** Lista opcional de marcos históricos marcantes que ocorreram nesse período */
-  key_events?: string[];
+  /** Resumo didático e fatual de 2 a 3 sentenças descrevendo o contexto do período (bilíngue) */
+  description: {
+    en: string;
+    pt: string;
+  };
+  /** Lista opcional de marcos históricos marcantes que ocorreram nesse período (bilíngue) */
+  key_events?: {
+    en: string[];
+    pt: string[];
+  };
 }
 
 /**

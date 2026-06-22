@@ -19,6 +19,7 @@
 import React, { useMemo } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { X, GitCompare, Info } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { useCountryDetail } from "@/lib/hooks/useCountryDetail";
 import { useMapColors } from "@/lib/hooks/useMapColors";
@@ -66,6 +67,7 @@ interface CountryChartProps {
  */
 function CountryComparisonChart({ code, color, getColor }: CountryChartProps) {
   const detail = useCountryDetail(code);
+  const t = useTranslations("countryPanel");
 
   /**
    * Componente interno de Tooltip reduzido para a comparação.
@@ -85,8 +87,8 @@ function CountryComparisonChart({ code, color, getColor }: CountryChartProps) {
               {data.spectrum > 0 ? `+${data.spectrum}` : data.spectrum}
             </span>
           </div>
-          <div>Líder: <span className="font-semibold text-gray-200">{data.leader}</span></div>
-          <div>Partido: <span className="font-semibold text-gray-200">{data.party}</span></div>
+          <div>{t("leader")}: <span className="font-semibold text-gray-200">{data.leader}</span></div>
+          <div>{t("party")}: <span className="font-semibold text-gray-200">{data.party}</span></div>
         </div>
       );
     }
@@ -146,6 +148,8 @@ function CountryComparisonChart({ code, color, getColor }: CountryChartProps) {
  * @returns {React.JSX.Element} Elemento React representando a gaveta de comparação.
  */
 export default function ComparisonDrawer() {
+  const t = useTranslations("comparison");
+  
   // Zustand: Estado da gaveta, lista de países em comparação e limpeza de lista
   const isComparing = useAppStore((state) => state.isComparing);
   const setIsComparing = useAppStore((state) => state.setIsComparing);
@@ -181,10 +185,10 @@ export default function ComparisonDrawer() {
               </div>
               <div>
                 <Dialog.Title className="text-sm font-bold text-white uppercase tracking-wider">
-                  Comparação de Trajetórias Políticas
+                  {t("title")}
                 </Dialog.Title>
                 <Dialog.Description className="text-xs text-muted-foreground">
-                  Selecione até 3 países no mapa para alinhar seus históricos de 1945 a 2024.
+                  {t("select")}
                 </Dialog.Description>
               </div>
             </div>
@@ -194,7 +198,7 @@ export default function ComparisonDrawer() {
               className="text-xs text-muted-foreground hover:text-white flex items-center gap-1.5 hover:bg-white/5 px-3 py-1.5 rounded-lg smooth-transition border border-transparent hover:border-white/10"
             >
               <X className="w-4 h-4" />
-              <span>Fechar</span>
+              <span>{t("close")}</span>
             </button>
           </div>
 
@@ -206,14 +210,14 @@ export default function ComparisonDrawer() {
                   <Info className="w-6 h-6 text-muted-foreground" />
                 </div>
                 <div className="max-w-md">
-                  <h4 className="text-sm font-semibold text-white mb-1">Aguardando Seleção</h4>
+                  <h4 className="text-sm font-semibold text-white mb-1">{t("waitingSelection")}</h4>
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    Clique em <strong className="text-gray-300">2 ou 3 países</strong> no mapa para renderizar e sincronizar suas trajetórias políticas lado a lado.
+                    {t("clickInstruction")}
                   </p>
                 </div>
                 {comparisonCountryCodes.length === 1 && (
                   <div className="text-xs font-semibold text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 px-3 py-1.5 rounded-full mt-2">
-                    Selecionado: {COUNTRY_FLAGS[comparisonCountryCodes[0]]} {comparisonCountryCodes[0]} (Selecione mais um)
+                    {t("selectedPrefix")} {COUNTRY_FLAGS[comparisonCountryCodes[0]]} {comparisonCountryCodes[0]} {t("selectMore")}
                   </div>
                 )}
               </div>

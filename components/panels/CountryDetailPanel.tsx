@@ -18,6 +18,7 @@
 import React, { useMemo } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { X, Calendar, User, Users, ShieldAlert, TrendingUp } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { useCountryDetail } from "@/lib/hooks/useCountryDetail";
 import { useMapColors } from "@/lib/hooks/useMapColors";
@@ -80,13 +81,13 @@ const COUNTRY_INFO: Record<string, { flag: string; nativeName: string }> = {
   NZ: { flag: "🇳🇿", nativeName: "Aotearoa" },
 };
 
-// Cores e rótulos associados a cada categoria de regime político
-const REGIME_BADGES: Record<string, { label: string; style: string }> = {
-  democracy: { label: "Democracia", style: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" },
-  authoritarian: { label: "Autoritarismo", style: "bg-red-500/20 text-red-400 border-red-500/30" },
-  hybrid: { label: "Híbrido", style: "bg-orange-500/20 text-orange-400 border-orange-500/30" },
-  monarchy: { label: "Monarquia", style: "bg-purple-500/20 text-purple-400 border-purple-500/30" },
-  transitional: { label: "Transição", style: "bg-zinc-500/20 text-zinc-400 border-zinc-500/30" },
+// Cores associadas a cada categoria de regime político
+const REGIME_STYLES: Record<string, string> = {
+  democracy: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+  authoritarian: "bg-red-500/20 text-red-400 border-red-500/30",
+  hybrid: "bg-orange-500/20 text-orange-400 border-orange-500/30",
+  monarchy: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+  transitional: "bg-zinc-500/20 text-zinc-400 border-zinc-500/30",
 };
 
 /**
@@ -95,6 +96,9 @@ const REGIME_BADGES: Record<string, { label: string; style: string }> = {
  * @returns {React.JSX.Element | null} Elemento React representando a gaveta de detalhes, ou null.
  */
 export default function CountryDetailPanel() {
+  const t = useTranslations("countryPanel");
+  const tRegime = useTranslations("regimeTypes");
+  
   // Zustand: Código do país e ano foco ativos globalmente
   const selectedCountryCode = useAppStore((state) => state.selectedCountryCode);
   const setSelectedCountryCode = useAppStore((state) => state.setSelectedCountryCode);
@@ -132,11 +136,12 @@ export default function CountryDetailPanel() {
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
-      const regimeInfo = REGIME_BADGES[data.regimeType] || REGIME_BADGES.transitional;
+      const regimeStyle = REGIME_STYLES[data.regimeType] || REGIME_STYLES.transitional;
+      const regimeLabel = tRegime(data.regimeType) || tRegime("transitional");
       return (
         <div className="glass-panel p-3 rounded-lg text-xs shadow-2xl flex flex-col gap-1 border border-white/10 select-none">
           <div className="font-bold text-white mb-1 border-b border-white/5 pb-1 flex justify-between gap-4">
-            <span>Ano: {data.year}</span>
+            <span>{t("period")}: {data.year}</span>
             <span 
               className="px-1.5 py-0.5 rounded font-bold text-[10px]" 
               style={{ backgroundColor: getColor(data.spectrum) }}
@@ -145,17 +150,17 @@ export default function CountryDetailPanel() {
             </span>
           </div>
           <div className="flex justify-between gap-4">
-            <span className="text-muted-foreground">Líder:</span>
+            <span className="text-muted-foreground">{t("leader")}:</span>
             <span className="font-medium text-gray-200">{data.leader}</span>
           </div>
           <div className="flex justify-between gap-4">
-            <span className="text-muted-foreground">Partido:</span>
+            <span className="text-muted-foreground">{t("party")}:</span>
             <span className="font-medium text-gray-200">{data.party}</span>
           </div>
           <div className="flex justify-between gap-4 items-center">
-            <span className="text-muted-foreground">Regime:</span>
-            <span className={`text-[9px] px-1.5 py-0.2 rounded border font-semibold ${regimeInfo.style}`}>
-              {regimeInfo.label}
+            <span className="text-muted-foreground">{t("regime")}:</span>
+            <span className={`text-[9px] px-1.5 py-0.2 rounded border font-semibold ${regimeStyle}`}>
+              {regimeLabel}
             </span>
           </div>
         </div>
@@ -186,7 +191,7 @@ export default function CountryDetailPanel() {
               <Dialog.Description className="text-xs text-muted-foreground flex items-center gap-1.5">
                 <span>{metadata.nativeName}</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-white/20" />
-                <span>Região: {country.region}</span>
+                <span>{t("region")}: {country.region}</span>
               </Dialog.Description>
             </div>
             
@@ -214,7 +219,7 @@ export default function CountryDetailPanel() {
                 
                 <div className="flex justify-between items-start">
                   <div className="flex flex-col">
-                    <span className="text-[10px] font-bold text-muted-foreground tracking-wider uppercase mb-1">Estado Político no Ano</span>
+                    <span className="text-[10px] font-bold text-muted-foreground tracking-wider uppercase mb-1">{t("stateInYear")}</span>
                     <span className="text-lg font-bold text-white flex items-center gap-2">
                       <User className="w-4.5 h-4.5 text-muted-foreground" />
                       {activePeriod.leader}
@@ -230,11 +235,11 @@ export default function CountryDetailPanel() {
 
                 <div className="grid grid-cols-2 gap-3 text-xs border-t border-white/5 pt-3 mt-1">
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-muted-foreground flex items-center gap-1"><Users className="w-3.5 h-3.5" /> Partido</span>
+                    <span className="text-muted-foreground flex items-center gap-1"><Users className="w-3.5 h-3.5" /> {t("party")}</span>
                     <span className="font-semibold text-gray-200">{activePeriod.party}</span>
                   </div>
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-muted-foreground flex items-center gap-1"><ShieldAlert className="w-3.5 h-3.5" /> Regime</span>
+                    <span className="text-muted-foreground flex items-center gap-1"><ShieldAlert className="w-3.5 h-3.5" /> {t("regime")}</span>
                     <span className="w-fit mt-0.5 text-[9px] px-2 py-0.5 rounded border font-bold border-transparent"
                       style={{
                         backgroundColor: activePeriod.regime_type === "democracy" ? "rgba(16, 185, 129, 0.15)" : 
@@ -245,20 +250,20 @@ export default function CountryDetailPanel() {
                                activePeriod.regime_type === "hybrid" ? "#fb923c" : "#a3a3a3"
                       }}
                     >
-                      {REGIME_BADGES[activePeriod.regime_type]?.label || "Transição"}
+                      {tRegime(activePeriod.regime_type) || tRegime("transitional")}
                     </span>
                   </div>
                 </div>
 
                 <p className="text-xs text-gray-300 leading-relaxed bg-white/2 p-3 rounded-lg border border-white/5">
-                  {activePeriod.description}
+                  {activePeriod.description || t("noDescription")}
                 </p>
 
                 {activePeriod.key_events && activePeriod.key_events.length > 0 && (
                   <div className="flex flex-col gap-1.5">
-                    <span className="text-[9px] font-bold text-muted-foreground tracking-wider uppercase">Eventos do Período</span>
+                    <span className="text-[9px] font-bold text-muted-foreground tracking-wider uppercase">{t("periodEvents")}</span>
                     <ul className="flex flex-col gap-1 text-[11px] text-gray-400 pl-4 list-disc">
-                      {activePeriod.key_events.map((evt, idx) => (
+                      {activePeriod.key_events.map((evt: string, idx: number) => (
                         <li key={idx}>{evt}</li>
                       ))}
                     </ul>
@@ -267,13 +272,13 @@ export default function CountryDetailPanel() {
               </div>
             ) : (
               <div className="glass-panel p-5 rounded-2xl text-center italic text-xs text-muted-foreground">
-                Sem informações factuais para o ano selecionado.
+                {t("noDataInYear")}
               </div>
             )}
 
             {/* 2. Barra de Espectro Político Horizontal */}
             <div className="flex flex-col gap-3">
-              <span className="text-xs font-bold text-muted-foreground tracking-wider uppercase">Posição no Espectro</span>
+              <span className="text-xs font-bold text-muted-foreground tracking-wider uppercase">{t("positionInSpectrum")}</span>
               
               <div className="relative w-full h-4 rounded-full border border-white/5 overflow-visible">
                 {/* Gradiente */}
@@ -296,9 +301,9 @@ export default function CountryDetailPanel() {
               </div>
               
               <div className="flex justify-between text-[9px] text-muted-foreground px-0.5">
-                <span>Esquerda (-10)</span>
-                <span>Centro (0)</span>
-                <span>Direita (+10)</span>
+                <span>{t("left")}</span>
+                <span>{t("center")}</span>
+                <span>{t("right")}</span>
               </div>
             </div>
 
@@ -306,7 +311,7 @@ export default function CountryDetailPanel() {
             <div className="flex flex-col gap-3 border-t border-white/5 pt-6">
               <span className="text-xs font-bold text-muted-foreground tracking-wider uppercase flex items-center gap-1.5">
                 <TrendingUp className="w-4 h-4 text-white" />
-                Trajetória Histórica (1945 - 2024)
+                {t("trajectoryTitle")}
               </span>
               
               <div className="w-full h-44 mt-2">
@@ -351,11 +356,11 @@ export default function CountryDetailPanel() {
             <div className="flex flex-col gap-4 border-t border-white/5 pt-6">
               <span className="text-xs font-bold text-muted-foreground tracking-wider uppercase flex items-center gap-1.5">
                 <Calendar className="w-4 h-4 text-white" />
-                Histórico de Períodos
+                {t("history")}
               </span>
 
               <div className="flex flex-col pl-3 border-l border-white/10 gap-6 mt-1">
-                {periods.map((period, idx) => {
+                {periods.map((period: any, idx: number) => {
                   const isActive = selectedYear >= period.year_start && (period.year_end === null || selectedYear <= period.year_end);
                   
                   return (
@@ -376,7 +381,7 @@ export default function CountryDetailPanel() {
 
                       <div className="flex justify-between items-center text-xs">
                         <span className="font-semibold text-white/90">
-                          {period.year_start} – {period.year_end || "Presente"}
+                          {period.year_start} – {period.year_end || t("present")}
                         </span>
                         
                         <span 
@@ -403,12 +408,12 @@ export default function CountryDetailPanel() {
                                    period.regime_type === "hybrid" ? "#fb923c" : "#a3a3a3"
                           }}
                         >
-                          {REGIME_BADGES[period.regime_type]?.label || "Transição"}
+                          {tRegime(period.regime_type) || tRegime("transitional")}
                         </span>
                       </div>
 
                       <p className="text-[11px] text-gray-400 leading-normal border-t border-white/5 pt-2 mt-0.5">
-                        {period.description}
+                        {period.description || t("noDescription")}
                       </p>
                     </div>
                   );

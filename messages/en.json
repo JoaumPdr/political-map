@@ -1,0 +1,111 @@
+{
+  "nav": {
+    "title": "Political Atlas",
+    "subtitle": "Historical Regime Viewer",
+    "compare": "Compare Countries",
+    "compareActive": "Comparison Active",
+    "year": "Year"
+  },
+  "map": {
+    "noData": "No historical data available",
+    "hover": {
+      "leader": "Leader",
+      "party": "Party",
+      "spectrum": "Spectrum",
+      "regime": "Regime"
+    }
+  },
+  "timeline": {
+    "play": "Play",
+    "pause": "Pause",
+    "speed": "Speed",
+    "focusYear": "Focus Year",
+    "historicalEvents": {
+      "e1945": { "label": "End of World War II", "shortLabel": "End of WWII" },
+      "e1953": { "label": "Death of Stalin / End of the Korean War", "shortLabel": "Death of Stalin" },
+      "e1962": { "label": "Cuban Missile Crisis", "shortLabel": "Cuban Missile" },
+      "e1973": { "label": "Oil Crisis / Yom Kippur War", "shortLabel": "Oil Crisis" },
+      "e1989": { "label": "Fall of the Berlin Wall", "shortLabel": "Berlin Wall" },
+      "e1991": { "label": "Dissolution of the Soviet Union", "shortLabel": "End of USSR" },
+      "e2001": { "label": "September 11 Attacks / War on Terror", "shortLabel": "Sept 11" },
+      "e2008": { "label": "Great Global Financial Crisis", "shortLabel": "Financial Crisis" },
+      "e2011": { "label": "Outbreak of the Arab Spring", "shortLabel": "Arab Spring" },
+      "e2022": { "label": "Invasion of Ukraine by Russia", "shortLabel": "Ukraine War" }
+    }
+  },
+  "filters": {
+    "title": "Atlas Filters",
+    "reset": "Reset",
+    "regions": {
+      "label": "Geographic Region",
+      "all": "All Regions",
+      "americas": "Americas",
+      "europe": "Europe",
+      "asia": "Asia",
+      "africa": "Africa",
+      "oceania": "Oceania",
+      "middleEast": "Middle East"
+    },
+    "regimeTypes": {
+      "label": "Regime Type",
+      "all": "All Regimes",
+      "democracy": "Democracy",
+      "authoritarian": "Authoritarian",
+      "hybrid": "Hybrid",
+      "monarchy": "Monarchy",
+      "transitional": "Transitional"
+    },
+    "spectrumRange": "Political Spectrum Range"
+  },
+  "countryPanel": {
+    "history": "Political History",
+    "trajectory": "Political Trajectory",
+    "regime": "Regime",
+    "leader": "Leader",
+    "party": "Party",
+    "period": "Period",
+    "keyEvents": "Key Events",
+    "noDescription": "No description available.",
+    "active": "Active",
+    "close": "Close Panel",
+    "region": "Region",
+    "stateInYear": "Political State in the Selected Year",
+    "periodEvents": "Period Events",
+    "noDataInYear": "No factual information for the selected year.",
+    "positionInSpectrum": "Position in the Spectrum",
+    "left": "Left (-10)",
+    "center": "Center (0)",
+    "right": "Right (+10)",
+    "present": "Present",
+    "trajectoryTitle": "Historical Trajectory (1945 - 2024)"
+  },
+  "comparison": {
+    "title": "Comparison of Political Trajectories",
+    "select": "Select up to 3 countries on the map to align their history from 1945 to 2024.",
+    "close": "Close",
+    "clear": "Clear All",
+    "placeholder": "Select a country on the map",
+    "synchronization": "Synchronized X-axis (Timeline)",
+    "waitingSelection": "Awaiting Selection",
+    "clickInstruction": "Click 2 or 3 countries on the map to render and synchronize their political trajectories side by side.",
+    "selectedPrefix": "Selected:",
+    "selectMore": "(Select one more)"
+  },
+  "regimeTypes": {
+    "democracy": "Democracy",
+    "authoritarian": "Authoritarian",
+    "hybrid": "Hybrid",
+    "monarchy": "Monarchy",
+    "transitional": "Transitional"
+  },
+  "legend": {
+    "title": "Political Spectrum",
+    "farLeft": "Radical Left",
+    "left": "Left",
+    "center": "Center",
+    "right": "Right",
+    "farRight": "Far Right",
+    "noData": "No Data",
+    "outsideFilters": "Outside filters or no historical data"
+  }
+}

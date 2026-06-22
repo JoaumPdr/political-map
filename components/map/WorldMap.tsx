@@ -16,6 +16,7 @@
 
 import React, { useState, useMemo } from "react";
 import { ComposableMap, Geographies, Geography, ZoomableGroup } from "react-simple-maps";
+import { useTranslations } from "next-intl";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { usePoliticalData } from "@/lib/hooks/usePoliticalData";
 import { useMapColors } from "@/lib/hooks/useMapColors";
@@ -53,6 +54,7 @@ interface TooltipState {
  * @returns {React.JSX.Element} Elemento React representando o mapa interativo.
  */
 export default function WorldMap() {
+  const t = useTranslations("map");
   // Hook customizado central de dados políticos reativos aos filtros e ano foco
   const { countries } = usePoliticalData();
   // Hook de mapeamento de cores do espectro
@@ -261,15 +263,15 @@ export default function WorldMap() {
           </div>
           
           {tooltip.noData ? (
-            <span className="text-muted-foreground italic mt-1">Sem dados históricos ativos</span>
+            <span className="text-muted-foreground italic mt-1">{t("noData")}</span>
           ) : (
             <div className="flex flex-col gap-0.5 mt-1">
               <div className="flex justify-between gap-4">
-                <span className="text-muted-foreground">Líder:</span>
+                <span className="text-muted-foreground">{t("hover.leader")}:</span>
                 <span className="font-medium text-right text-gray-200">{tooltip.leader}</span>
               </div>
               <div className="flex justify-between gap-4">
-                <span className="text-muted-foreground">Partido:</span>
+                <span className="text-muted-foreground">{t("hover.party")}:</span>
                 <span className="font-medium text-right text-gray-200">{tooltip.party}</span>
               </div>
             </div>

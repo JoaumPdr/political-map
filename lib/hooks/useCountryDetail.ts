@@ -39,9 +39,33 @@ export interface TrajectoryPoint {
  * @param {string | null} countryCode - Código ISO-2 do país desejado.
  * @returns {null | { country: CountryData, activePeriod: PoliticalPeriod | null, periods: PoliticalPeriod[], trajectory: TrajectoryPoint[] }} Detalhes do país.
  */
+function translatePeriod(period: any, locale: "en" | "pt"): any {
+  if (!period) return null;
+  return {
+    ...period,
+    description: period.description?.[locale] || period.description || "",
+    key_events: period.key_events?.[locale] || period.key_events || undefined,
+  };
+}
+
+function translateCountry(country: any, locale: "en" | "pt"): any {
+  if (!country) return null;
+  return {
+    ...country,
+    periods: country.periods.map((p: any) => translatePeriod(p, locale)),
+  };
+}
+
+/**
+ * Hook para obter dados detalhados e trajetória de evolução de um país.
+ * 
+ * @param {string | null} countryCode - Código ISO-2 do país desejado.
+ * @returns {null | { country: CountryData, activePeriod: PoliticalPeriod | null, periods: PoliticalPeriod[], trajectory: TrajectoryPoint[] }} Detalhes do país.
+ */
 export function useCountryDetail(countryCode: string | null) {
   // Observa o ano selecionado globalmente para identificar o período ativo correspondente
   const selectedYear = useAppStore((state) => state.selectedYear);
+  const locale = useAppStore((state) => state.locale);
 
   /**
    * O uso de useMemo evita recomputar a linha do tempo (1945-2024) a menos que o país consultado
@@ -87,20 +111,21 @@ export function useCountryDetail(countryCode: string | null) {
         trajectory.push({
           year,
           spectrum: 0,
-          leader: "Sem Dados / Ocupação",
+          leader: locale === "pt" ? "Sem Dados / Ocupação" : "No Data / Occupation",
           party: "N/A",
           regimeType: "transitional",
         });
       }
     }
 
+    const translatedCountry = translateCountry(country, locale);
     return {
-      country,
-      activePeriod,
-      periods: country.periods,
+      country: translatedCountry,
+      activePeriod: translatePeriod(activePeriod, locale),
+      periods: translatedCountry.periods,
       trajectory,
     };
-  }, [countryCode, selectedYear]);
+  }, [countryCode, selectedYear, locale]);
 
   return detail;
 }

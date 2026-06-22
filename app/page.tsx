@@ -15,11 +15,13 @@
 
 import React from "react";
 import dynamic from "next/dynamic";
+import { useTranslations } from "next-intl";
 import { useAppStore } from "@/lib/store/useAppStore";
 import FilterSidebar from "@/components/panels/FilterSidebar";
 import WorldMap from "@/components/map/WorldMap";
 import { MapLegend } from "@/components/map/MapLegend";
 import TimelineSlider from "@/components/timeline/TimelineSlider";
+import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { GitCompare, Map as MapIcon, Calendar } from "lucide-react";
 
 /**
@@ -43,6 +45,7 @@ const ComparisonDrawer = dynamic(
  * @returns {React.JSX.Element} Elemento React representando a página inteira.
  */
 export default function Home() {
+  const t = useTranslations("nav");
   // Zustand: Modo de comparação ativo, mutação do modo, ano atual e seleção de país ativo
   const isComparing = useAppStore((state) => state.isComparing);
   const setIsComparing = useAppStore((state) => state.setIsComparing);
@@ -74,10 +77,10 @@ export default function Home() {
           </div>
           <div className="flex flex-col">
             <h1 className="text-sm font-black tracking-wider text-white uppercase leading-none">
-              Political Atlas
+              {t("title")}
             </h1>
             <span className="text-[10px] font-bold text-muted-foreground tracking-wide mt-1 uppercase">
-              Visualizador Histórico de Regimes
+              {t("subtitle")}
             </span>
           </div>
         </div>
@@ -95,14 +98,17 @@ export default function Home() {
             }`}
           >
             <GitCompare className="w-4 h-4" />
-            <span>{isComparing ? "Modo Comparação Ativo" : "Comparar Países"}</span>
+            <span>{isComparing ? t("compareActive") : t("compare")}</span>
           </button>
 
           {/* Rótulo Sutil de Ano Atual */}
           <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-3.5 py-2 rounded-lg text-xs font-mono font-semibold text-white">
             <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
-            <span>Ano: {selectedYear}</span>
+            <span>{t("year")}: {selectedYear}</span>
           </div>
+
+          {/* Seletor de Idioma */}
+          <LanguageSwitcher />
 
         </div>
 

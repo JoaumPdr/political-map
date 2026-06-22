@@ -113,3 +113,16 @@ A fluidez das interações é ditada pela classe `.smooth-transition`:
 * **Easing:** `cubic-bezier(0.4, 0, 0.2, 1)` (suave na aceleração e desaceleração).
 * **Duração Padrão:** `300ms` (tempo ideal para dar resposta visual clara sem atrasar a experiência do usuário).
 * **Hover de Países:** Os países no mapa alteram sua opacidade de preenchimento (`fill-opacity`) em `150ms` para `0.85` ao passar o ponteiro do mouse, voltando para `1.0` após a saída, fornecendo feedback de clique imediato.
+
+---
+
+## 🌐 9. Internacionalização (i18n) e Suporte Bilíngue
+
+A interface adota suporte completo a multilinguismo (Português do Brasil - **PT-BR** e Inglês - **EN**) com chaveamento reativo instantâneo na camada do cliente sem recarregamento da página (refresh-free).
+
+### Arquitetura de i18n:
+* **next-intl no Cliente:** Integração do provedor [`I18nProvider.tsx`](file:///c:/Users/joaop/antigravity%20web%20projects/politcmap/components/providers/I18nProvider.tsx) que envelopa o layout raiz do Next.js.
+* **Sincronização com Zustand e LocalStorage:** O estado ativo do idioma é controlado globalmente pelo hook de estado global [`useAppStore.ts`](file:///c:/Users/joaop/antigravity%20web%20projects/politcmap/lib/store/useAppStore.ts) e persistido no `localStorage` (chave `political-atlas-locale`), com fallback para as preferências nativas do navegador.
+* **Prevenção de Hydration Mismatches:** O `I18nProvider` adota renderização de hidratação segura iniciando estaticamente com o locale padrão do servidor (`pt`) e realizando a hidratação e chaveamento no cliente pós-montagem (`useEffect`).
+* **LanguageSwitcher Estético:** O seletor de idiomas [`LanguageSwitcher.tsx`](file:///c:/Users/joaop/antigravity%20web%20projects/politcmap/components/ui/LanguageSwitcher.tsx) é estilizado como pílula minimalista com glassmorphism translúcido (`bg-white/5` + `backdrop-blur-md`) e micro-animação de escala (`scale-105`) com realce de contraste de texto.
+* **Dicionários Localizados:** Todas as chaves do cabeçalho, rodapé, linha do tempo, painel de filtros, gavetas comparativas e detalhadas estão mapeadas e localizadas nos arquivos JSON de tradução em [`/messages/pt.json`](file:///c:/Users/joaop/antigravity%20web%20projects/politcmap/messages/pt.json) e [`/messages/en.json`](file:///c:/Users/joaop/antigravity%20web%20projects/politcmap/messages/en.json).

@@ -9,6 +9,7 @@
  */
 
 import React from "react";
+import { useTranslations } from "next-intl";
 
 /**
  * Componente que renderiza a legenda do espectro político com glassmorphism.
@@ -16,12 +17,14 @@ import React from "react";
  * @returns {React.JSX.Element} Elemento React representando a legenda do mapa.
  */
 export function MapLegend() {
+  const t = useTranslations("legend");
+
   return (
     <div className="glass-panel p-4 rounded-xl flex flex-col gap-2 w-64 text-xs select-none">
       
       {/* Cabeçalho da Legenda */}
       <div className="flex items-center justify-between font-medium text-muted-foreground mb-1">
-        <span>Espectro Político</span>
+        <span>{t("title")}</span>
         <span>-10 a +10</span>
       </div>
       
@@ -35,16 +38,16 @@ export function MapLegend() {
       
       {/* Marcadores de Espectro Extremidade e Centro */}
       <div className="flex justify-between text-[10px] text-muted-foreground px-0.5 mt-0.5">
-        <span className="font-semibold text-red-500">-10 (Esquerda)</span>
-        <span className="font-semibold text-yellow-500">0 (Centro)</span>
-        <span className="font-semibold text-blue-400">+10 (Direita)</span>
+        <span className="font-semibold text-red-500">-10 ({t("farLeft")})</span>
+        <span className="font-semibold text-yellow-500">0 ({t("center")})</span>
+        <span className="font-semibold text-blue-400">+10 ({t("farRight")})</span>
       </div>
 
       {/* Rótulo adicional para elementos neutros/sem dados */}
       <div className="flex flex-col gap-1 mt-2 border-t border-white/5 pt-2 text-[10px] text-muted-foreground">
         <div className="flex items-center gap-2">
           <div className="w-2.5 h-2.5 rounded-sm bg-[#2a2a2a] border border-white/10" />
-          <span>Fora dos filtros ou sem dados históricos</span>
+          <span>{t("outsideFilters")}</span>
         </div>
       </div>
 

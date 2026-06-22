@@ -16,6 +16,7 @@
 
 import React, { useState, useEffect } from "react";
 import * as Slider from "@radix-ui/react-slider";
+import { useTranslations } from "next-intl";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { Play, Pause } from "lucide-react";
 import HistoricalEvents from "./HistoricalEvents";
@@ -29,6 +30,7 @@ const DEBOUNCE_MS = 50; // Evita sobrecarga de re-renderizações no mapa em arr
  * @returns {React.JSX.Element} Elemento React representando o painel de timeline.
  */
 export default function TimelineSlider() {
+  const t = useTranslations("timeline");
   // Zustand: Ano selecionado, mutação de ano, autoplay e velocidade
   const selectedYear = useAppStore((state) => state.selectedYear);
   const setSelectedYear = useAppStore((state) => state.setSelectedYear);
@@ -117,6 +119,7 @@ export default function TimelineSlider() {
                 ? "bg-white border-white text-[#0f0f0f] shadow-lg shadow-white/10" 
                 : "bg-white/5 border-white/10 hover:border-white/30 text-white hover:bg-white/10"
             }`}
+            aria-label={isPlaying ? t("pause") : t("play")}
           >
             {isPlaying ? (
               <Pause className="w-5 h-5 fill-current" />
@@ -177,7 +180,7 @@ export default function TimelineSlider() {
             {localYear}
           </span>
           <span className="text-[9px] font-bold text-muted-foreground tracking-wider uppercase mt-1">
-            Ano Foco
+            {t("focusYear")}
           </span>
         </div>
 

@@ -1,0 +1,111 @@
+{
+  "nav": {
+    "title": "Atlas Político",
+    "subtitle": "Visualizador Histórico de Regimes",
+    "compare": "Comparar Países",
+    "compareActive": "Modo Comparação Ativo",
+    "year": "Ano"
+  },
+  "map": {
+    "noData": "Sem dados históricos ativos",
+    "hover": {
+      "leader": "Líder",
+      "party": "Partido",
+      "spectrum": "Espectro",
+      "regime": "Regime"
+    }
+  },
+  "timeline": {
+    "play": "Reproduzir",
+    "pause": "Pausar",
+    "speed": "Velocidade",
+    "focusYear": "Ano Foco",
+    "historicalEvents": {
+      "e1945": { "label": "Fim da Segunda Guerra Mundial", "shortLabel": "Fim da 2ª Guerra" },
+      "e1953": { "label": "Morte de Stalin / Fim da Guerra da Coreia", "shortLabel": "Morte de Stalin" },
+      "e1962": { "label": "Crise dos Mísseis de Cuba", "shortLabel": "Mísseis de Cuba" },
+      "e1973": { "label": "Crise do Petróleo / Guerra do Yom Kippur", "shortLabel": "Crise do Petróleo" },
+      "e1989": { "label": "Queda do Muro de Berlim", "shortLabel": "Muro de Berlim" },
+      "e1991": { "label": "Dissolução da União Soviética", "shortLabel": "Fim da URSS" },
+      "e2001": { "label": "Ataques de 11 de Setembro / Guerra ao Terror", "shortLabel": "11 de Setembro" },
+      "e2008": { "label": "Grande Crise Financeira Global", "shortLabel": "Crise Subprime" },
+      "e2011": { "label": "Eclosão da Primavera Árabe", "shortLabel": "Primavera Árabe" },
+      "e2022": { "label": "Invasão da Ucrânia pela Rússia", "shortLabel": "Guerra na Ucrânia" }
+    }
+  },
+  "filters": {
+    "title": "Filtros do Atlas",
+    "reset": "Resetar",
+    "regions": {
+      "label": "Região Geográfica",
+      "all": "Todas as Regiões",
+      "americas": "Américas",
+      "europe": "Europa",
+      "asia": "Ásia",
+      "africa": "África",
+      "oceania": "Oceania",
+      "middleEast": "Oriente Médio"
+    },
+    "regimeTypes": {
+      "label": "Tipo de Regime",
+      "all": "Todos os Regimes",
+      "democracy": "Democracia",
+      "authoritarian": "Autoritarismo",
+      "hybrid": "Híbrido",
+      "monarchy": "Monarquia",
+      "transitional": "Transição"
+    },
+    "spectrumRange": "Faixa do Espectro Político"
+  },
+  "countryPanel": {
+    "history": "Histórico Político",
+    "trajectory": "Trajetória Política",
+    "regime": "Regime",
+    "leader": "Líder",
+    "party": "Partido",
+    "period": "Período",
+    "keyEvents": "Marcos Históricos",
+    "noDescription": "Sem descrição disponível.",
+    "active": "Ativo",
+    "close": "Fechar Painel",
+    "region": "Região",
+    "stateInYear": "Estado Político no Ano",
+    "periodEvents": "Eventos do Período",
+    "noDataInYear": "Sem informações factuais para o ano selecionado.",
+    "positionInSpectrum": "Posição no Espectro",
+    "left": "Esquerda (-10)",
+    "center": "Centro (0)",
+    "right": "Direita (+10)",
+    "present": "Presente",
+    "trajectoryTitle": "Trajetória Histórica (1945 - 2024)"
+  },
+  "comparison": {
+    "title": "Comparação de Trajetórias Políticas",
+    "select": "Selecione até 3 países no mapa para alinhar seus históricos de 1945 a 2024.",
+    "close": "Fechar",
+    "clear": "Limpar Tudo",
+    "placeholder": "Selecione um país no mapa",
+    "synchronization": "Eixo X Sincronizado (Linha do Tempo)",
+    "waitingSelection": "Aguardando Seleção",
+    "clickInstruction": "Clique em 2 ou 3 países no mapa para renderizar e sincronizar suas trajetórias políticas lado a lado.",
+    "selectedPrefix": "Selecionado:",
+    "selectMore": "(Selecione mais um)"
+  },
+  "regimeTypes": {
+    "democracy": "Democracia",
+    "authoritarian": "Autoritarismo",
+    "hybrid": "Híbrido",
+    "monarchy": "Monarquia",
+    "transitional": "Transição"
+  },
+  "legend": {
+    "title": "Espectro Político",
+    "farLeft": "Esquerda Radical",
+    "left": "Esquerda",
+    "center": "Centro",
+    "right": "Direita",
+    "farRight": "Extrema Direita",
+    "noData": "Sem Dados",
+    "outsideFilters": "Fora dos filtros ou sem dados históricos"
+  }
+}

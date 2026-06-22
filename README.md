@@ -114,30 +114,29 @@ Para uma imersão profunda nas escolhas de arquitetura e design do projeto, cons
 * **Gerenciamento de Estado:** [Zustand v5](https://zustand-demo.pmnd.rs/) — Armazenamento global e subscrição reativa para alta performance.
 * **Mapas:** [React Simple Maps v3](https://www.react-simple-maps.io/) — Renderização declarativa SVG de mapas mundiais usando dados TopoJSON locais.
 * **Visualização de Dados:** [Recharts v3](https://recharts.org/) — Gráficos vetoriais responsivos e interativos para timelines históricas.
-* **Interpolação de Cores:** [d3-scale](https://d3js.org/d3-scale) — Mapeamento contínuo do espectro [-10, 10] para coordenadas cromáticas.
-* **Componentes Acessíveis:** [Radix UI primitives](https://www.radix-ui.com/) — Fundações robustas para caixas de diálogo, sliders e tooltips de alta acessibilidade.
 
----
+## 📊 Integração Científica com V-Dem e Suporte Bilíngue
 
-## 🗺️ Roadmap de Integração: Base de Dados V-Dem (Varieties of Democracy)
+A plataforma foi atualizada e integrada com o banco de dados oficial do **V-Dem (Varieties of Democracy) v16** cobrindo séries históricas completas (1945–2024), além de incorporar suporte de internacionalização bilíngue nativo de alto desempenho.
 
-Atualmente, o projeto utiliza um arquivo estático enriquecido factual de alta qualidade em [`staticDataset.ts`](file:///c:/Users/joaop/antigravity%20web%20projects/politcmap/lib/data/staticDataset.ts). No entanto, o sistema foi estruturado de forma desacoplada para suportar a migração para a API de ciência política mais renomada do mundo: o **V-Dem**.
+### 1. Ingestão de Dados do V-Dem
+Desenvolvemos um pipeline automatizado na pasta [`scripts/`](file:///c:/Users/joaop/antigravity%20web%20projects/politcmap/scripts):
+* 📄 [`convert-vdem.ts`](file:///c:/Users/joaop/antigravity%20web%20projects/politcmap/scripts/convert-vdem.ts) — Script executável via Node.js que realiza o download automático do dataset ZIP do V-Dem v16, extrai o CSV, faz o mapeamento de códigos de países históricos (como a URSS e Tchecoslováquia), calibra o índice do espectro político de `-10` a `+10` cruzando as variáveis `v2x_polyarchy` e `v2x_libdem`, determina o regime a partir de `v2x_regime`, traduz todas as descrições/marcos via Google Translate API de forma concorrente em lotes e gera a base final [`staticDataset.ts`](file:///c:/Users/joaop/antigravity%20web%20projects/politcmap/lib/data/staticDataset.ts).
+* 📄 [`validate-dataset.ts`](file:///c:/Users/joaop/antigravity%20web%20projects/politcmap/scripts/validate-dataset.ts) — Validador estático que analisa o dataset gerado certificando que não haja sobreposições ou lacunas temporais nos períodos e que todos os dados sejam compatíveis com os contratos do TypeScript.
 
-### 1. Mapeamento de Variáveis V-Dem correspondentes:
-* **Eixo Esquerda-Direita (-10 a +10):**
-  * O indicador de posicionamento ideológico da economia do partido governante do V-Dem (`v2x_party_ideology` ou o índice de políticas econômicas libertárias/estatalistas `v2xps_party`) pode ser normalizado na escala da aplicação de `-10` a `+10`.
-* **Tipologia de Regimes:**
-  * O V-Dem utiliza o índice *Regimes of the World* (RoW - `v2x_regime`), que divide os regimes em:
-    * `0`: Autocracia Fechada (mapeada para `"authoritarian"`)
-    * `1`: Autocracia Eleitoral (mapeada para `"hybrid"`)
-    * `2`: Democracia Eleitoral (mapeada para `"democracy"`)
-    * `3`: Democracia Liberal (mapeada para `"democracy"`)
-  * Adicionalmente, estados monárquicos tradicionais ou regimes em transição contam com variáveis históricas dedicadas (`v2x_rule_of_law`, `v2x_exec_select`).
+Para rodar os scripts de ingestão e validação:
+```bash
+# Executar a ingestão e tradução
+npx tsx scripts/convert-vdem.ts
 
-### 2. Fluxo Futuro de Integração:
-1. **Banco de Dados (PostgreSQL + Prisma):** Armazenamento local em cache dos dados baixados do V-Dem (disponíveis em arquivos CSV/R/Stata) para evitar gargalos em tempo de execução.
-2. **Endpoint de Sincronização:** Criação de scripts de ingestão de dados para normalizar os códigos ISO de três letras e datas do V-Dem.
-3. **Substituição da Camada de Abstração:** Atualizar o endpoint [`route.ts`](file:///c:/Users/joaop/antigravity%20web%20projects/politcmap/app/api/political-data/route.ts) para realizar consultas SQL estruturadas com filtros de região, período e regime.
+# Validar integridade dos dados gerados
+npx tsx scripts/validate-dataset.ts
+```
+
+### 2. Suporte Bilíngue (PT-BR | EN)
+* **next-intl Cliente:** Integração sem recarregamento da página (refresh-free) utilizando o componente [`I18nProvider.tsx`](file:///c:/Users/joaop/antigravity%20web%20projects/politcmap/components/providers/I18nProvider.tsx).
+* **Seletor de Idiomas:** O componente [`LanguageSwitcher.tsx`](file:///c:/Users/joaop/antigravity%20web%20projects/politcmap/components/ui/LanguageSwitcher.tsx) implementado no cabeçalho superior permite chavear instantaneamente todas as legendas, botões, gráficos e descrições históricas entre Português e Inglês.
+* **Persistência local:** O idioma selecionado é gravado na Zustand Store e mantido de forma persistente no `localStorage` do navegador.
 
 ---
 

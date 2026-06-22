@@ -75,10 +75,17 @@ interface AppState {
   setSpectrumRangeFilter: (range: [number, number]) => void;
   /** Reseta todos os filtros para as configurações padrão */
   resetFilters: () => void;
+
+  // === ESTADO DE IDIOMA ===
+  /** Idioma ativo na aplicação ('en' | 'pt') */
+  locale: "en" | "pt";
+  /** Altera o idioma ativo e persiste no localStorage */
+  setLocale: (locale: "en" | "pt") => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
   // === ESTADO INICIAL ===
+  locale: "pt",
   selectedYear: 1945,
   isPlaying: false,
   playbackSpeed: 1,
@@ -168,5 +175,17 @@ export const useAppStore = create<AppState>((set) => ({
         regimeType: "All",
         spectrumRange: [-10, 10],
       },
+    }),
+
+  setLocale: (locale) =>
+    set((state) => {
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("political-atlas-locale", locale);
+        } catch (e) {
+          console.warn("Falha ao salvar locale no localStorage:", e);
+        }
+      }
+      return { locale };
     }),
 }));

@@ -1,12 +1,35 @@
+/**
+ * @file TimelineSlider.tsx
+ * @description Componente da barra inferior de linha do tempo. Gerencia a seleção de anos de 1945 a 2024,
+ * o autoplay reativo com controle de velocidade (0.5x, 1x, 2x) e implementa um debounce de 50ms
+ * no slider para evitar re-renderizações excessivas do mapa central durante o arrasto manual.
+ * 
+ * Depende de:
+ * - Componentes: {@link HistoricalEvents}
+ * - Estado Global: {@link useAppStore} para gerenciar o ano selecionado, autoplay e velocidade de reprodução.
+ * 
+ * Dependente de:
+ * - Páginas: {@link Home} em `/app/page.tsx`
+ */
+
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import * as Slider from "@radix-ui/react-slider";
 import { useAppStore } from "@/lib/store/useAppStore";
-import { Play, Pause, FastForward } from "lucide-react";
+import { Play, Pause } from "lucide-react";
 import HistoricalEvents from "./HistoricalEvents";
 
+// Constante numérica calibrada de debounce do slider de tempo
+const DEBOUNCE_MS = 50; // Evita sobrecarga de re-renderizações no mapa em arrastos rápidos
+
+/**
+ * Componente que renderiza a barra inferior de linha do tempo.
+ * 
+ * @returns {React.JSX.Element} Elemento React representando o painel de timeline.
+ */
 export default function TimelineSlider() {
+  // Zustand: Ano selecionado, mutação de ano, autoplay e velocidade
   const selectedYear = useAppStore((state) => state.selectedYear);
   const setSelectedYear = useAppStore((state) => state.setSelectedYear);
   const isPlaying = useAppStore((state) => state.isPlaying);
@@ -14,26 +37,37 @@ export default function TimelineSlider() {
   const playbackSpeed = useAppStore((state) => state.playbackSpeed);
   const setPlaybackSpeed = useAppStore((state) => state.setPlaybackSpeed);
 
-  // Estado local para debounce de renderização pesada do mapa
+  // Estado local para controle tátil imediato do slider antes do debounce de propagação
   const [localYear, setLocalYear] = useState(selectedYear);
 
-  // Sincroniza localYear quando selectedYear mudar externamente (ex: auto-play ou clique em marco histórico)
+  /**
+   * Sincroniza o estado de ano local se o ano for modificado externamente
+   * (ex: autoplay ativo ou ao clicar em um marco de evento histórico).
+   */
   useEffect(() => {
     setLocalYear(selectedYear);
   }, [selectedYear]);
 
-  // Debounce: atualiza a store global após 50ms sem alteração no localYear
+  /**
+   * Efeito de Debounce:
+   * Atualiza a store global após 50ms sem alterações no estado local do slider.
+   * Evita repintar o mapa vetorial a cada pixel arrastado, mantendo a responsividade da UI.
+   */
   useEffect(() => {
     if (localYear === selectedYear) return;
     
     const handler = setTimeout(() => {
       setSelectedYear(localYear);
-    }, 50);
+    }, DEBOUNCE_MS);
 
     return () => clearTimeout(handler);
   }, [localYear, selectedYear, setSelectedYear]);
 
-  // Efeito para reprodução automática (Auto-play)
+  /**
+   * Efeito de Autoplay:
+   * Incrementa o ano foco automaticamente a cada ciclo de tempo (base de 800ms por ano)
+   * se o estado de reprodução estiver ativo.
+   */
   useEffect(() => {
     if (!isPlaying) return;
 
@@ -52,10 +86,12 @@ export default function TimelineSlider() {
     return () => clearInterval(interval);
   }, [isPlaying, selectedYear, playbackSpeed, setIsPlaying, setSelectedYear]);
 
-  // Alterna play/pause
+  /**
+   * Alterna o estado de reprodução automática.
+   * Se já estiver no fim (2024), reinicia para o ano inicial (1945).
+   */
   const togglePlay = () => {
     if (selectedYear >= 2024 && !isPlaying) {
-      // Reinicia do ano inicial se já estiver no fim
       setSelectedYear(1945);
       setIsPlaying(true);
     } else {
@@ -65,13 +101,14 @@ export default function TimelineSlider() {
 
   return (
     <div className="w-full bg-[#121212]/80 backdrop-blur-xl border-t border-white/10 p-6 flex flex-col z-30 select-none">
-      {/* 1. Régua de Eventos Históricos */}
+      
+      {/* Régua Superior de Eventos Históricos */}
       <HistoricalEvents />
 
-      {/* 2. Controles de Reprodução e Slider */}
+      {/* Controles de Reprodução e Slider */}
       <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
         
-        {/* Controles de Play/Pause e Velocidade */}
+        {/* Controles de Play/Pause e Seletor de Velocidade */}
         <div className="flex items-center gap-3">
           <button
             onClick={togglePlay}
@@ -109,7 +146,7 @@ export default function TimelineSlider() {
           </div>
         </div>
 
-        {/* Trilho de Tempo (Slider) */}
+        {/* Trilho de Tempo (Radix Slider) */}
         <div className="flex-1 w-full flex items-center gap-4">
           <span className="text-[10px] font-mono text-muted-foreground">1945</span>
           

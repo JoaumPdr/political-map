@@ -1,3 +1,16 @@
+/**
+ * @file page.tsx
+ * @description Ponto de entrada principal da interface do Atlas Político (página de rotas da pasta app).
+ * Organiza a barra de navegação superior, painel de filtros lateral, área central do mapa vetorial
+ * e a linha do tempo no rodapé. Implementa lazy loading nos painéis pesados de detalhe do país
+ * e gaveta comparativa para maximizar o desempenho e velocidade de inicialização inicial.
+ * 
+ * Depende de:
+ * - Componentes Síncronos: {@link FilterSidebar}, {@link WorldMap}, {@link MapLegend}, {@link TimelineSlider}
+ * - Componentes Lazy-Loaded: {@link CountryDetailPanel}, {@link ComparisonDrawer}
+ * - Estado Global: {@link useAppStore} para gerenciar o modo de comparação, ano ativo e limpar seleções.
+ */
+
 "use client";
 
 import React from "react";
@@ -9,7 +22,11 @@ import { MapLegend } from "@/components/map/MapLegend";
 import TimelineSlider from "@/components/timeline/TimelineSlider";
 import { GitCompare, Map as MapIcon, Calendar } from "lucide-react";
 
-// Lazy loading dos painéis mais pesados (detalhes e comparação)
+/**
+ * Lazy loading dos componentes pesados (Gaveta de detalhes e Gaveta de comparação).
+ * ssr: false impede que estes componentes (que usam hooks do cliente como Recharts ou Radix dialog)
+ * tentem ser renderizados do lado do servidor (SSR), o que causaria quebras de hidratação (hydration mismatches).
+ */
 const CountryDetailPanel = dynamic(
   () => import("@/components/panels/CountryDetailPanel"),
   { ssr: false }
@@ -20,14 +37,24 @@ const ComparisonDrawer = dynamic(
   { ssr: false }
 );
 
+/**
+ * Componente principal da página de visualização do Atlas Político.
+ * 
+ * @returns {React.JSX.Element} Elemento React representando a página inteira.
+ */
 export default function Home() {
+  // Zustand: Modo de comparação ativo, mutação do modo, ano atual e seleção de país ativo
   const isComparing = useAppStore((state) => state.isComparing);
   const setIsComparing = useAppStore((state) => state.setIsComparing);
   const selectedYear = useAppStore((state) => state.selectedYear);
   const setSelectedCountryCode = useAppStore((state) => state.setSelectedCountryCode);
 
+  /**
+   * Alterna a exibição do modo de comparação de países.
+   * Se for ativado, limpa qualquer país ativo que esteja aberto no painel de detalhes na direita
+   * para evitar sobreposição confusa de painéis na interface.
+   */
   const handleToggleComparison = () => {
-    // Ao ativar comparação, fecha o painel de detalhes aberto
     if (!isComparing) {
       setSelectedCountryCode(null);
     }
@@ -40,7 +67,7 @@ export default function Home() {
       {/* 1. Barra de Navegação Superior (Header) */}
       <header className="h-16 border-b border-white/10 px-6 flex items-center justify-between bg-[#121212]/80 backdrop-blur-md z-30 select-none">
         
-        {/* Lado Esquerdo: Título da App */}
+        {/* Lado Esquerdo: Identidade do Produto */}
         <div className="flex items-center gap-3">
           <div className="p-2 bg-white/5 rounded-lg border border-white/5 shadow-inner">
             <MapIcon className="w-5 h-5 text-white" />
@@ -55,10 +82,10 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Lado Direito: Controles Globais e Indicador de Ano */}
+        {/* Lado Direito: Ações Globais */}
         <div className="flex items-center gap-4">
           
-          {/* Botão de Comparar */}
+          {/* Alternador do Modo de Comparação */}
           <button
             onClick={handleToggleComparison}
             className={`text-xs font-semibold px-4 py-2 rounded-lg border flex items-center gap-2 smooth-transition cursor-pointer ${
@@ -71,7 +98,7 @@ export default function Home() {
             <span>{isComparing ? "Modo Comparação Ativo" : "Comparar Países"}</span>
           </button>
 
-          {/* Indicador de Ano Sutil */}
+          {/* Rótulo Sutil de Ano Atual */}
           <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-3.5 py-2 rounded-lg text-xs font-mono font-semibold text-white">
             <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
             <span>Ano: {selectedYear}</span>
@@ -81,17 +108,17 @@ export default function Home() {
 
       </header>
 
-      {/* 2. Conteúdo Central: Filtros Esquerda + Mapa Centro/Direita */}
+      {/* 2. Área de Trabalho Principal */}
       <div className="flex-1 flex relative overflow-hidden">
         
-        {/* Painel de Filtros (Esquerda) */}
+        {/* Filtros reativos (Lado Esquerdo) */}
         <FilterSidebar />
 
-        {/* Área do Mapa (Centro/Direita) */}
+        {/* Visualizador Cartográfico Vetorial (Centro/Direito) */}
         <main className="flex-1 relative h-full">
           <WorldMap />
 
-          {/* Legenda do Espectro flutuante (Bottom-Left) */}
+          {/* Legenda flutuante (Bottom-Left) */}
           <div className="absolute bottom-5 left-5 z-20 pointer-events-auto">
             <MapLegend />
           </div>
@@ -99,10 +126,10 @@ export default function Home() {
 
       </div>
 
-      {/* 3. Barra Inferior de Linha do Tempo (Footer) */}
+      {/* 3. Controle e Slider da Linha do Tempo (Rodapé Fixo) */}
       <TimelineSlider />
 
-      {/* 4. Componentes Lazy-Loaded (Sheet de Detalhes e Gaveta de Comparação) */}
+      {/* 4. Componentes Lazy-Loaded Carregados sob demanda baseados no Estado da Store */}
       <CountryDetailPanel />
       <ComparisonDrawer />
 

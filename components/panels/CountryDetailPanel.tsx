@@ -1,3 +1,18 @@
+/**
+ * @file CountryDetailPanel.tsx
+ * @description Componente da gaveta lateral direita que exibe informações detalhadas
+ * sobre a nação selecionada. Contém metadados da nação, descrição do líder e partido ativos,
+ * barra de espectro interativa, gráfico de evolução histórica e a linha do tempo de transições.
+ * 
+ * Depende de:
+ * - Hooks: {@link useCountryDetail}, {@link useMapColors}
+ * - Estado Global: {@link useAppStore} para ler selectedCountryCode, selectedYear e setSelectedCountryCode.
+ * - Recharts: para renderização do gráfico de evolução do espectro político.
+ * 
+ * Dependente de:
+ * - Páginas: {@link Home} em `/app/page.tsx`
+ */
+
 "use client";
 
 import React, { useMemo } from "react";
@@ -17,7 +32,7 @@ import {
   CartesianGrid 
 } from "recharts";
 
-// Tradução e mapeamento de bandeiras
+// Dicionário com bandeira correspondente e nome nativo do país para fins de design editorial
 const COUNTRY_INFO: Record<string, { flag: string; nativeName: string }> = {
   US: { flag: "🇺🇸", nativeName: "United States" },
   RU: { flag: "🇷🇺", nativeName: "Rossiya" },
@@ -39,8 +54,33 @@ const COUNTRY_INFO: Record<string, { flag: string; nativeName: string }> = {
   IT: { flag: "🇮🇹", nativeName: "Italia" },
   ES: { flag: "🇪🇸", nativeName: "España" },
   SE: { flag: "🇸🇪", nativeName: "Sverige" },
+  MX: { flag: "🇲🇽", nativeName: "México" },
+  CL: { flag: "🇨🇱", nativeName: "Chile" },
+  CU: { flag: "🇨🇺", nativeName: "Cuba" },
+  CO: { flag: "🇨🇴", nativeName: "Colombia" },
+  PE: { flag: "🇵🇪", nativeName: "Perú" },
+  UY: { flag: "🇺🇾", nativeName: "Uruguay" },
+  CA: { flag: "🇨🇦", nativeName: "Canada" },
+  PT: { flag: "🇵🇹", nativeName: "Portugal" },
+  NO: { flag: "🇳🇴", nativeName: "Norge" },
+  PL: { flag: "🇵🇱", nativeName: "Polska" },
+  CZ: { flag: "🇨🇿", nativeName: "Česká republika" },
+  GR: { flag: "🇬🇷", nativeName: "Elláda" },
+  NL: { flag: "🇳🇱", nativeName: "Nederland" },
+  BE: { flag: "🇧🇪", nativeName: "België" },
+  UA: { flag: "🇺🇦", nativeName: "Ukraina" },
+  KP: { flag: "🇰🇵", nativeName: "Choson" },
+  PK: { flag: "🇵🇰", nativeName: "Pakistan" },
+  ID: { flag: "🇮🇩", nativeName: "Indonesia" },
+  VN: { flag: "🇻🇳", nativeName: "Việt Nam" },
+  EG: { flag: "🇪🇬", nativeName: "Misr" },
+  NG: { flag: "🇳🇬", nativeName: "Nigeria" },
+  ET: { flag: "🇪🇹", nativeName: "Ityop'ya" },
+  AU: { flag: "🇦🇺", nativeName: "Australia" },
+  NZ: { flag: "🇳🇿", nativeName: "Aotearoa" },
 };
 
+// Cores e rótulos associados a cada categoria de regime político
 const REGIME_BADGES: Record<string, { label: string; style: string }> = {
   democracy: { label: "Democracia", style: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" },
   authoritarian: { label: "Autoritarismo", style: "bg-red-500/20 text-red-400 border-red-500/30" },
@@ -49,19 +89,28 @@ const REGIME_BADGES: Record<string, { label: string; style: string }> = {
   transitional: { label: "Transição", style: "bg-zinc-500/20 text-zinc-400 border-zinc-500/30" },
 };
 
+/**
+ * Componente que renderiza a gaveta de informações detalhadas do país utilizando Radix Dialog.
+ * 
+ * @returns {React.JSX.Element | null} Elemento React representando a gaveta de detalhes, ou null.
+ */
 export default function CountryDetailPanel() {
+  // Zustand: Código do país e ano foco ativos globalmente
   const selectedCountryCode = useAppStore((state) => state.selectedCountryCode);
   const setSelectedCountryCode = useAppStore((state) => state.setSelectedCountryCode);
   const selectedYear = useAppStore((state) => state.selectedYear);
   
+  // Hook customizado que extrai detalhes históricos e trajetória do país
   const detail = useCountryDetail(selectedCountryCode);
+  // Hook utilitário de mapeamento de cores do espectro
   const { getColor } = useMapColors();
 
-  // Fecha o painel
+  // Função interna para limpar o país ativo ao fechar o painel
   const handleClose = () => {
     setSelectedCountryCode(null);
   };
 
+  // Memoriza bandeira e nome nativo do país selecionado para evitar reprocessamento no render
   const metadata = useMemo(() => {
     if (!selectedCountryCode) return { flag: "🏳️", nativeName: "" };
     return COUNTRY_INFO[selectedCountryCode] || { flag: "🏳️", nativeName: "" };
@@ -71,11 +120,15 @@ export default function CountryDetailPanel() {
 
   const { country, activePeriod, periods, trajectory } = detail;
 
-  // Calcula a posição do dot de espectro na barra horizontal (-10 a +10 -> 0% a 100%)
+  // Normaliza o espectro de [-10, +10] para faixa percentual de [0, 100]%
+  // Utilizado para posicionar absolutamente o marcador na barra horizontal do espectro.
   const activeSpectrum = activePeriod ? activePeriod.spectrum : 0;
   const dotPositionPercent = ((activeSpectrum + 10) / 20) * 100;
 
-  // Custom Tooltip para o Recharts
+  /**
+   * Componente de renderização customizada para a janela de Tooltip do Recharts.
+   * Evita o visual padrão sem graça e formata os dados com glassmorphism.
+   */
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
@@ -114,14 +167,14 @@ export default function CountryDetailPanel() {
   return (
     <Dialog.Root open={!!selectedCountryCode} onOpenChange={(open) => !open && handleClose()}>
       <Dialog.Portal>
-        {/* Fundo Escurecido */}
+        {/* Fundo escurecido atrás do painel */}
         <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 transition-all duration-300" />
         
-        {/* Conteúdo da Gaveta */}
+        {/* Painel lateral direito contendo as informações */}
         <Dialog.Content 
           className="fixed top-0 right-0 h-full w-full sm:w-[480px] bg-[#121212] border-l border-white/10 shadow-2xl z-50 flex flex-col focus:outline-none animate-in slide-in-from-right duration-300"
         >
-          {/* Header */}
+          {/* Cabeçalho da Gaveta */}
           <div className="p-6 border-b border-white/5 flex items-center justify-between">
             <div>
               <div className="flex items-center gap-2 mb-1">
@@ -147,12 +200,13 @@ export default function CountryDetailPanel() {
             </Dialog.Close>
           </div>
 
-          {/* Painel Interno de Scroll */}
+          {/* Área de rolagem de dados técnicos */}
           <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-8 scrollbar-thin">
             
-            {/* 1. Líder Ativo no Ano Selecionado */}
+            {/* 1. Card do Líder / Estado Político Ativo */}
             {activePeriod ? (
               <div className="glass-panel p-5 rounded-2xl flex flex-col gap-4 relative overflow-hidden">
+                {/* Efeito luminoso de fundo sutil refletindo o valor do espectro político */}
                 <div 
                   className="absolute top-0 right-0 w-24 h-24 rounded-full filter blur-[40px] opacity-20 pointer-events-none"
                   style={{ backgroundColor: getColor(activeSpectrum) }}
@@ -181,9 +235,16 @@ export default function CountryDetailPanel() {
                   </div>
                   <div className="flex flex-col gap-0.5">
                     <span className="text-muted-foreground flex items-center gap-1"><ShieldAlert className="w-3.5 h-3.5" /> Regime</span>
-                    <span className={`w-fit mt-0.5 text-[9px] px-2 py-0.5 rounded border font-bold ${
-                      REGIME_BADGES[activePeriod.regime_type]?.style || REGIME_BADGES.transitional.style
-                    }`}>
+                    <span className="w-fit mt-0.5 text-[9px] px-2 py-0.5 rounded border font-bold border-transparent"
+                      style={{
+                        backgroundColor: activePeriod.regime_type === "democracy" ? "rgba(16, 185, 129, 0.15)" : 
+                                         activePeriod.regime_type === "authoritarian" ? "rgba(239, 68, 68, 0.15)" : 
+                                         activePeriod.regime_type === "hybrid" ? "rgba(249, 115, 22, 0.15)" : "rgba(115, 115, 115, 0.15)",
+                        color: activePeriod.regime_type === "democracy" ? "#34d399" : 
+                               activePeriod.regime_type === "authoritarian" ? "#f87171" : 
+                               activePeriod.regime_type === "hybrid" ? "#fb923c" : "#a3a3a3"
+                      }}
+                    >
                       {REGIME_BADGES[activePeriod.regime_type]?.label || "Transição"}
                     </span>
                   </div>
@@ -206,11 +267,11 @@ export default function CountryDetailPanel() {
               </div>
             ) : (
               <div className="glass-panel p-5 rounded-2xl text-center italic text-xs text-muted-foreground">
-                Sem informações para o ano selecionado.
+                Sem informações factuais para o ano selecionado.
               </div>
             )}
 
-            {/* 2. Barra de Espectro Político Visual */}
+            {/* 2. Barra de Espectro Político Horizontal */}
             <div className="flex flex-col gap-3">
               <span className="text-xs font-bold text-muted-foreground tracking-wider uppercase">Posição no Espectro</span>
               
@@ -223,7 +284,7 @@ export default function CountryDetailPanel() {
                   }}
                 />
                 
-                {/* Marcador animado (Dot) */}
+                {/* Marcador animado (Dot) que transiciona de forma fluida */}
                 <div 
                   className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-5.5 h-5.5 rounded-full bg-white shadow-xl shadow-black/80 border-2 border-black flex items-center justify-center transition-all duration-500 ease-out"
                   style={{ 
@@ -241,7 +302,7 @@ export default function CountryDetailPanel() {
               </div>
             </div>
 
-            {/* 3. Trajectory Chart */}
+            {/* 3. Gráfico de Evolução Histórica (Recharts) */}
             <div className="flex flex-col gap-3 border-t border-white/5 pt-6">
               <span className="text-xs font-bold text-muted-foreground tracking-wider uppercase flex items-center gap-1.5">
                 <TrendingUp className="w-4 h-4 text-white" />
@@ -286,7 +347,7 @@ export default function CountryDetailPanel() {
               </div>
             </div>
 
-            {/* 4. Linha do tempo de períodos histórica */}
+            {/* 4. Linha do Tempo Vertical de Transições Governamentais */}
             <div className="flex flex-col gap-4 border-t border-white/5 pt-6">
               <span className="text-xs font-bold text-muted-foreground tracking-wider uppercase flex items-center gap-1.5">
                 <Calendar className="w-4 h-4 text-white" />
@@ -306,7 +367,7 @@ export default function CountryDetailPanel() {
                           : "bg-white/2 border-white/5 opacity-70 hover:opacity-100"
                       }`}
                     >
-                      {/* Marcador na linha vertical */}
+                      {/* Círculo indicador na linha de tempo vertical */}
                       <div 
                         className={`absolute -left-[17px] top-5 w-2 h-2 rounded-full border transition-all duration-200 ${
                           isActive ? "bg-white border-white scale-125" : "bg-[#121212] border-white/30"
@@ -332,9 +393,16 @@ export default function CountryDetailPanel() {
 
                       <div className="flex justify-between items-center text-[10px]">
                         <span className="text-muted-foreground">{period.party}</span>
-                        <span className={`px-1.5 py-0.2 rounded border font-semibold text-[8px] ${
-                          REGIME_BADGES[period.regime_type]?.style || REGIME_BADGES.transitional.style
-                        }`}>
+                        <span className={`px-1.5 py-0.2 rounded border font-semibold text-[8px] border-transparent`}
+                          style={{
+                            backgroundColor: period.regime_type === "democracy" ? "rgba(16, 185, 129, 0.15)" : 
+                                             period.regime_type === "authoritarian" ? "rgba(239, 68, 68, 0.15)" : 
+                                             period.regime_type === "hybrid" ? "rgba(249, 115, 22, 0.15)" : "rgba(115, 115, 115, 0.15)",
+                            color: period.regime_type === "democracy" ? "#34d399" : 
+                                   period.regime_type === "authoritarian" ? "#f87171" : 
+                                   period.regime_type === "hybrid" ? "#fb923c" : "#a3a3a3"
+                          }}
+                        >
                           {REGIME_BADGES[period.regime_type]?.label || "Transição"}
                         </span>
                       </div>

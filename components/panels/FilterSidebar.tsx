@@ -1,3 +1,17 @@
+/**
+ * @file FilterSidebar.tsx
+ * @description Componente de barra lateral esquerda colapsável contendo os filtros interativos da aplicação.
+ * Permite filtrar o mapa e os dados por região, tipo de regime e espectro político (slider duplo).
+ * Comunica-se diretamente com a Zustand Store para disparar as atualizações reativas do mapa.
+ * 
+ * Depende de:
+ * - Estado Global: {@link useAppStore} para ler e atualizar filtros ativos.
+ * - Radix Slider: `@radix-ui/react-slider` para o controle deslizante de dois cursores.
+ * 
+ * Dependente de:
+ * - Páginas: {@link Home} em `/app/page.tsx`
+ */
+
 "use client";
 
 import React, { useState } from "react";
@@ -5,7 +19,10 @@ import * as Slider from "@radix-ui/react-slider";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { ChevronLeft, ChevronRight, SlidersHorizontal, RotateCcw } from "lucide-react";
 
+// Lista de regiões geográficas suportadas na interface
 const REGIONS = ["All", "Americas", "Europe", "Asia", "Africa", "Middle East"];
+
+// Lista de regimes políticos mapeados e suas classes de cores utilitárias correspondentes
 const REGIMES = [
   { value: "All", label: "Todos os Regimes" },
   { value: "Democracy", label: "Democracia", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" },
@@ -15,10 +32,16 @@ const REGIMES = [
   { value: "Transitional", label: "Transição", color: "bg-zinc-500/20 text-zinc-400 border-zinc-500/30" },
 ];
 
+/**
+ * Componente que renderiza a barra lateral colapsável com controle de filtros.
+ * 
+ * @returns {React.JSX.Element} Elemento React representando a barra de filtros.
+ */
 export default function FilterSidebar() {
+  // Estado local para controle do painel estar aberto (expandido) ou colapsado
   const [isOpen, setIsOpen] = useState(true);
 
-  // Zustand
+  // Zustand: Filtros ativos e suas respectivas funções de mutação
   const filters = useAppStore((state) => state.filters);
   const setRegionFilter = useAppStore((state) => state.setRegionFilter);
   const setRegimeTypeFilter = useAppStore((state) => state.setRegimeTypeFilter);
@@ -31,13 +54,13 @@ export default function FilterSidebar() {
         isOpen ? "w-80" : "w-0"
       }`}
     >
-      {/* Container do Painel */}
+      {/* Container Principal do Painel com Glassmorphism */}
       <div 
         className={`w-80 h-full glass-panel border-r border-white/10 flex flex-col transition-all duration-300 ${
           isOpen ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0 pointer-events-none"
         }`}
       >
-        {/* Cabeçalho */}
+        {/* Cabeçalho do Painel */}
         <div className="p-5 border-b border-white/5 flex items-center justify-between">
           <div className="flex items-center gap-2 font-semibold text-gray-200">
             <SlidersHorizontal className="w-4 h-4 text-white" />
@@ -53,10 +76,10 @@ export default function FilterSidebar() {
           </button>
         </div>
 
-        {/* Corpo dos Filtros */}
+        {/* Listagem de Filtros Disponíveis */}
         <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-6 scrollbar-thin">
           
-          {/* 1. Região */}
+          {/* 1. Filtro de Região */}
           <div className="flex flex-col gap-2.5">
             <label className="text-xs font-bold text-muted-foreground tracking-wider uppercase">Região Geográfica</label>
             <div className="grid grid-cols-2 gap-1.5">
@@ -79,7 +102,7 @@ export default function FilterSidebar() {
             </div>
           </div>
 
-          {/* 2. Tipo de Regime */}
+          {/* 2. Filtro de Tipo de Regime */}
           <div className="flex flex-col gap-2.5">
             <label className="text-xs font-bold text-muted-foreground tracking-wider uppercase">Tipo de Regime</label>
             <div className="flex flex-col gap-1.5">
@@ -107,7 +130,7 @@ export default function FilterSidebar() {
             </div>
           </div>
 
-          {/* 3. Slider de Espectro Político */}
+          {/* 3. Slider de Espectro Político Duplo (Radix Slider) */}
           <div className="flex flex-col gap-3.5 border-t border-white/5 pt-5">
             <div className="flex justify-between items-center">
               <label className="text-xs font-bold text-muted-foreground tracking-wider uppercase">Faixa do Espectro</label>
@@ -116,7 +139,7 @@ export default function FilterSidebar() {
               </span>
             </div>
             
-            {/* Slider Radix */}
+            {/* Slider de dois cursores do Radix UI */}
             <Slider.Root
               className="relative flex items-center select-none touch-none w-full h-5"
               value={filters.spectrumRange}
@@ -149,7 +172,7 @@ export default function FilterSidebar() {
         </div>
       </div>
 
-      {/* Botão de Colapsar (Aba flutuante) */}
+      {/* Aba de Controle de Colapso (Aba Flutuante) */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="absolute top-1/2 -translate-y-1/2 -right-5 w-5 h-16 bg-[#1a1a1a] border-y border-r border-white/10 hover:border-white/20 rounded-r-lg flex items-center justify-center text-muted-foreground hover:text-white cursor-pointer select-none transition-all shadow-md shadow-black/40 hover:bg-[#222]"

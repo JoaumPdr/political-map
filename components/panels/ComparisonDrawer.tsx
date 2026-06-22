@@ -1,3 +1,19 @@
+/**
+ * @file ComparisonDrawer.tsx
+ * @description Componente de painel inferior (gaveta) para comparação simultânea de trajetórias políticas.
+ * Renderiza de 2 a 3 gráficos de linha contendo o histórico do espectro político de países
+ * selecionados no mapa. Os gráficos utilizam a sincronização nativa do Recharts (syncId) para que
+ * o hover sobre o ano de um gráfico ative a exibição da régua temporal em todos os outros em tempo real.
+ * 
+ * Depende de:
+ * - Hooks: {@link useCountryDetail}, {@link useMapColors}
+ * - Estado Global: {@link useAppStore} para ler e mutar isComparing, comparisonCountryCodes e clearComparison.
+ * - Recharts: para renderização dos múltiplos LineCharts sincronizados.
+ * 
+ * Dependente de:
+ * - Páginas: {@link Home} em `/app/page.tsx`
+ */
+
 "use client";
 
 import React, { useMemo } from "react";
@@ -17,25 +33,44 @@ import {
   CartesianGrid,
 } from "recharts";
 
+// Bandeiras para identificação rápida dos países na gaveta comparativa
 const COUNTRY_FLAGS: Record<string, string> = {
   US: "🇺🇸", RU: "🇷🇺", CN: "🇨🇳", BR: "🇧🇷", DE: "🇩🇪",
   FR: "🇫🇷", GB: "🇬🇧", AR: "🇦🇷", VE: "🇻🇪", HU: "🇭🇺",
   TR: "🇹🇷", IN: "🇮🇳", IL: "🇮🇱", IR: "🇮🇷", ZA: "🇿🇦",
   JP: "🇯🇵", KR: "🇰🇷", IT: "🇮🇹", ES: "🇪🇸", SE: "🇸🇪",
+  MX: "🇲🇽", CL: "🇨🇱", CU: "🇨🇺", CO: "🇨🇴", PE: "🇵🇪",
+  UY: "🇺🇾", CA: "🇨🇦", PT: "🇵🇹", NO: "🇳🇴", PL: "🇵🇱",
+  CZ: "🇨🇿", GR: "🇬🇷", NL: "🇳🇱", BE: "🇧🇪", UA: "🇺🇦",
+  KP: "🇰🇵", PK: "🇵🇰", ID: "🇮🇩", VN: "🇻🇳", EG: "🇪🇬",
+  NG: "🇳🇬", ET: "🇪🇹", AU: "🇦🇺", NZ: "🇳🇿",
 };
 
-// Cores exclusivas para destacar cada linha na comparação
+// Cores fixas da paleta para diferenciar as linhas de cada país na comparação
 const COMPARISON_COLORS = ["#3b82f6", "#ef4444", "#eab308"];
 
 interface CountryChartProps {
+  /** Código ISO-2 do país a ser desenhado */
   code: string;
+  /** Cor hexadecimal reservada para a linha daquele país */
   color: string;
+  /** Método de mapeamento do espectro de cores do Atlas */
   getColor: (val: number) => string;
 }
 
+/**
+ * Componente interno do gráfico comparativo individual do país.
+ * 
+ * @param {CountryChartProps} props - Propriedades do gráfico.
+ * @returns {React.JSX.Element | null} Elemento React representando o gráfico individual.
+ */
 function CountryComparisonChart({ code, color, getColor }: CountryChartProps) {
   const detail = useCountryDetail(code);
 
+  /**
+   * Componente interno de Tooltip reduzido para a comparação.
+   * Exibe informações concisas de governante no ano correspondente do hover.
+   */
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
@@ -69,6 +104,7 @@ function CountryComparisonChart({ code, color, getColor }: CountryChartProps) {
       
       <div className="w-full h-full min-h-0">
         <ResponsiveContainer width="100%" height="100%">
+          {/* O uso do syncId="politicalTrajectory" unifica a timeline de cursor de todos os LineCharts na tela */}
           <LineChart data={detail.trajectory} syncId="politicalTrajectory" margin={{ top: 5, right: 5, left: -25, bottom: 5 }}>
             <CartesianGrid stroke="#1e1e1e" strokeDasharray="3 3" vertical={false} />
             <XAxis 
@@ -104,13 +140,21 @@ function CountryComparisonChart({ code, color, getColor }: CountryChartProps) {
   );
 }
 
+/**
+ * Componente que renderiza a gaveta de comparação inferior utilizando Radix Dialog.
+ * 
+ * @returns {React.JSX.Element} Elemento React representando a gaveta de comparação.
+ */
 export default function ComparisonDrawer() {
+  // Zustand: Estado da gaveta, lista de países em comparação e limpeza de lista
   const isComparing = useAppStore((state) => state.isComparing);
   const setIsComparing = useAppStore((state) => state.setIsComparing);
   const comparisonCountryCodes = useAppStore((state) => state.comparisonCountryCodes);
   const clearComparison = useAppStore((state) => state.clearComparison);
+  // Hook utilitário de mapeamento de cores do espectro
   const { getColor } = useMapColors();
 
+  // Fecha o painel de comparação inferior limpando a lista de países
   const handleClose = () => {
     setIsComparing(false);
     clearComparison();
@@ -119,13 +163,17 @@ export default function ComparisonDrawer() {
   return (
     <Dialog.Root open={isComparing} onOpenChange={(open) => !open && handleClose()}>
       <Dialog.Portal>
-        {/* Sem overlay escurecido para permitir interações e cliques no mapa enquanto compara! */}
+        {/*
+          Nota de design: Não renderizamos overlay escuro para esta gaveta inferior,
+          permitindo que o usuário clique e selecione/deselecione países no mapa
+          enquanto visualiza os gráficos mudarem no rodapé!
+        */}
         
-        {/* Conteúdo da Gaveta Inferior */}
+        {/* Painel inferior de comparação */}
         <Dialog.Content 
           className="fixed bottom-0 left-0 w-full h-[360px] bg-[#121212]/95 backdrop-blur-xl border-t border-white/10 shadow-2xl z-40 flex flex-col focus:outline-none animate-in slide-in-from-bottom duration-300"
         >
-          {/* Header */}
+          {/* Cabeçalho */}
           <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-1.5 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
@@ -150,7 +198,7 @@ export default function ComparisonDrawer() {
             </button>
           </div>
 
-          {/* Gráficos / Mensagem */}
+          {/* Área de Exibição dos Gráficos Sincronizados ou Estado Vazio */}
           <div className="flex-1 flex p-6 gap-6 justify-center items-center overflow-x-auto">
             {comparisonCountryCodes.length < 2 ? (
               <div className="flex flex-col items-center text-center gap-3 select-none">

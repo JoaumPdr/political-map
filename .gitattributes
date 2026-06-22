@@ -1,1 +1,2 @@
+*.csv filter=lfs diff=lfs merge=lfs -text
 .tmp/vdem_extracted/V-Dem-CY-Core-v16.csv filter=lfs diff=lfs merge=lfs -text
